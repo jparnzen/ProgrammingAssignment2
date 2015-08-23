@@ -1,7 +1,29 @@
-## Put comments here that give an overall description of what your
-## functions do
+## 'makeCacheMatrix' creates a new cached matrix object, encapsulating
+## the passed in matrix object, and returns a list object of functions
+## that act as methods of the cached matrix object.
 
-## Write a short comment describing this function
+## NOTE that this follows the same pattern as was used in the
+## assignment's makeVector() example.
+
+## INTERFACE
+## cm <- makeCacheMatrix(m) # creates a cached matrix from m with a NULL inverse
+## cm$get() # returns the stored matrix
+## cm$set(m2) # sets the stored matrix and resets the inverse to NULL
+## cm$getInverse() # returns the inverse of the matrix (NULL if no inverse)
+## cm$setInverse(im) # sets the inverse of the matrix
+
+## EXAMPLE USAGE
+## hilbert <- function(n) { i <- 1:n; 1 / outer(i - 1, i, "+") }
+## h8 <- hilbert(8)
+## cm <- makeCacheMatrix(h8)
+## cm$get() # == h8
+## cm$getInverse() # == NULL
+## cm$setInverse(solve(h8))
+## cm$getInverse() # == solve(h8)
+## round(cm$getInverse() %*% cm$get(), 3) # == 8x8 identity matrix
+## cm$set(hilbert(4))
+## cm$get() # == hilbert(4)
+## cm$getInverse() # == NULL
 
 makeCacheMatrix <- function(x = matrix()) {
   ## the private cached inverse property, initialized to NULL
@@ -35,7 +57,21 @@ makeCacheMatrix <- function(x = matrix()) {
 }
 
 
-## Write a short comment describing this function
+## 'cacheSolve' takes a cached matrix object and returns its inverse.
+## If the inverse doesn't exist for the cached matrix, it is solve()ed
+## and then stored in the cached matrix object.
+## If the inverse does exist in the cached matrix, then the cached inverse
+## will be returned and no new calculations are performed. A message also
+## displays letting the user know that the cached inverse was used.
+## Any additional arguments to 'cacheSolve' are passed to the solve() function.
+
+## NOTE that this follows the same pattern as was used in the
+## assignment's cachemean() example.
+
+## EXAMPLE USAGE
+## cm <- makeCacheMatrix(hilbert(8))
+## im <- cacheSolve(cm)
+## round(im %*% cm, 3) # == 8x8 identity matrix
 
 cacheSolve <- function(x, ...) {
   ## Return a matrix that is the inverse of 'x'
@@ -54,7 +90,7 @@ cacheSolve <- function(x, ...) {
   ## get the internally stored matrix
   m <- x$get()
   ## create the inverse
-  i <- solve(m)
+  i <- solve(m, ...)
   ## cache the inverse for later
   x$setInverse(i)
   ## and return the inverse
